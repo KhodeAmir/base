@@ -46,15 +46,15 @@ local function authstate(state)
 elseif state["@type"] == "authorizationStateWaitTdlibParameters" then
     client:send({
             ["@type"] = "setTdlibParameters",
-            parameters = {
+             parameters = {
                 ["@type"] = "setTdlibParameters",
                 use_message_database = true,
                 api_id = api_id,
                 api_hash = api_hash,
                 system_language_code = "en",
                 device_model = "CRCO-BASE",
-                system_version = "BETA: 1",
-                application_version = "BETA : 1",
+                system_version = "CRCO-BASE: 1.3",
+                application_version = "BASE : 1.3",
                 enable_storage_optimizer = true,
                 use_pfs = true,
                 database_directory = "./CRCO-TG"
@@ -74,7 +74,7 @@ elseif state["@type"] == "authorizationStateWaitPhoneNumber" then
     os.exit(1)
 elseif state["@type"] == "authorizationStateReady" then
     ready = true
-    print("==> Launch Successfully")
+    print("==> Launch Successfully Let's rock")
 
 end
 return false

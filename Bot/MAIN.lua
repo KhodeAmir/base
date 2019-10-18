@@ -1,18 +1,17 @@
-serpent = require 'serpent'
 tdbot_function = require('Bot.tdbot').getCallback()
  tdbot  =  require'U-T.tdbot'
-function vardump(w)
-   print(serpent.block(w, {comment=false}))
-end
 bot = {}
 plugin = {}
 MsgTime_ = os.time() - 5
 getINFO = function(IN, WIT)
  bot.id = WIT.id
  bot.name = WIT.first_name
+ bot.last_name = WIT.last_name or ''
  bot.username = WIT.username or ''
  bot.phone_number = WIT.phone_number
-
+end
+getInfo_ = function(INT,crco_WIT)
+  bot.bio = crco_WIT.bio
 end
 TimeNow = os.time()
 
@@ -25,9 +24,18 @@ function dl_cb(extra, res)
  print("\027[" .. color.black[1] .. ";" .. color.red[2] .. "m ==> ERROR "..res.message.." \027[00m")
  end
 end
-M_T = function(PT,TX)
+M_T = function(PT,TX,lower,cmd)
+  if cmd then
+        PT_ = PT:gsub("[%?%[%]%[#!/%]%$%%]", "")
+  else
+    PT_ = PT
+  end
  if TX then
-   local PG_ = { TX:match(PT) }
+  if lower == 1 then
+    PG_ = { TX:lower():match(PT_) }
+  else
+    PG_ = { TX:match(PT_) }
+  end
      if next(PG_) then
        vardump(PG_)
        return PG_
@@ -61,14 +69,11 @@ end
        match
      )
        if result then
-      
         tdbot.sendText(msg.chat_id, msg.id,result, 'md', false, false, false, 0, nil, nil, nil)
-
-
      end
    end
    end
-last = '☤'
+last = '☤ '
 Valid_ = function (CR_)
  if tonumber(CR_.date) < tonumber(MsgTime_) then
    print("\027[" .. color.black[1] .. ";" .. color.green[2] .. "m ==> OLD MESSAGE \027[00m")
@@ -88,19 +93,24 @@ run_BOT= function (...)
      if plugint.run  then
     msg_ = plugint.run(msg,data_)
     if msg_ then
-    print("Pre Run =>> ", name)
      end
      
    end
  if msg then
-
-  for p = 1, #plugint.patterns do
-      PT_= plugint.patterns[p]
+  for key, value in pairs(plugint.patterns) do  
+       PT= value
+      TX_ = msg.on.text or msg.on.caption
      
-       TX_ = msg.on.text or msg.on.caption 
-      MT_ = M_T(PT_, TX_)
+   
+
+if plugint.lower then
+
+      MT_ = M_T(PT, TX_,1,plugint.cmd)
+else
+  MT_ = M_T(PT, TX_,0)
+end
          if MT_ then 
-         print('PAT : ',PT_)
+         print('PAT : ',PT)
        end  
        l_PL(msg,plugint,MT_)
      
@@ -131,12 +141,12 @@ end
 PluginLoad()
 
 function tdbot_update_callback (data_)
-
  tdbot.getMe( getINFO,nil)
+ tdbot.getUserFullInfo(bot.id,getInfo_,nil)
  getMainMessage(data_,nil,data_)
-
  if (data_._ == "updateDeleteMessages")  then
  elseif ( data_._ == "updateNewMessage" or data_._ == "updateNewChannelMessage") then
+
    if data_ and  Valid_(data_.message) or (data_.message.date and Valid_(data_.message)) then
    
    getMainMessage(data_,data_.message,data_)

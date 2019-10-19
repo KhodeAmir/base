@@ -12,5 +12,7 @@ pat = {
 	
 	return { 
 	patterns = pat,
+	  cmd = false,
+                lower = false,
 	runing = run 
 	}

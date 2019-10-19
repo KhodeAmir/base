@@ -145,5 +145,7 @@ end
             end
             return { 
                 patterns = pat,
+	  cmd = false,
+                lower = false,
          runing = Pre_ ,
          }

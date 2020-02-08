@@ -69,7 +69,8 @@ end
        match
      )
        if result then
-        tdbot.sendText(msg.chat_id, msg.id,result, 'md', false, false, false, 0, nil, nil, nil)
+         tdbot.editMessageText(msg.chat_id,msg.id,result,'html',false, 0, nil, nil, nil)
+
      end
    end
    end
@@ -121,12 +122,12 @@ end
 ----
 end
 PluginLoad = function()
-if not config then 
+if not _EnvDB then 
  return 
 end
 
-   for _, files in pairs(config.data.plist) do
-       print ("Loaded Plugin : ", files)
+   for _, files in pairs(_EnvDB.data.plist) do
+       print ("-> Loaded Plugin : ", files)
    local ok, err =  pcall(function()
    local PL_LOAD = loadfile("./plugins/"..files..'.lua')()
    plugin[files] = PL_LOAD
@@ -141,12 +142,13 @@ end
 PluginLoad()
 
 function tdbot_update_callback (data_)
+ 
  tdbot.getMe( getINFO,nil)
  tdbot.getUserFullInfo(bot.id,getInfo_,nil)
  getMainMessage(data_,nil,data_)
  if (data_._ == "updateDeleteMessages")  then
  elseif ( data_._ == "updateNewMessage" or data_._ == "updateNewChannelMessage") then
-
+  tdbot.openChat(data_.message.chat_id, nil, nil)
    if data_ and  Valid_(data_.message) or (data_.message.date and Valid_(data_.message)) then
    
    getMainMessage(data_,data_.message,data_)

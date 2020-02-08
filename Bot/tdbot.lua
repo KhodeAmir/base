@@ -44,23 +44,23 @@ local function authstate(state)
       if state["@type"] == "authorizationStateClosed" then
     return true
 elseif state["@type"] == "authorizationStateWaitTdlibParameters" then
-    client:send({
-            ["@type"] = "setTdlibParameters",
-             parameters = {
-                ["@type"] = "setTdlibParameters",
-                use_message_database = true,
-                api_id = api_id,
-                api_hash = api_hash,
-                system_language_code = "en",
-                device_model = "CRCO-BASE",
-                system_version = "CRCO-BASE: 1.3",
-                application_version = "BASE : 1.3",
-                enable_storage_optimizer = true,
-                use_pfs = true,
-                database_directory = "./CRCO-TG"
-            }
-        }
-    )
+  client:send({
+    ["@type"] = "setTdlibParameters",
+  parameters = {
+  ["@type"] = "setTdlibParameters",
+  use_message_database = false,
+  api_id = api_id,
+  api_hash = api_hash,
+  system_language_code = "en",
+  device_model = "CRCO",
+  system_version = "2",
+  application_version = "1",
+  enable_storage_optimizer = true,
+  use_pfs = false,
+  database_directory = "./CRCO-TG"
+    }
+}
+)
 elseif state["@type"] == "authorizationStateWaitEncryptionKey" then
     client:send({
             ["@type"] = "checkDatabaseEncryptionKey",

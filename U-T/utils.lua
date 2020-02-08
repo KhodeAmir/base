@@ -1,19 +1,19 @@
 --U-T
 utf8 = require "U-T.utf8" 
   client = require("redis")
-  socket = require('socket')
     redis = client.connect('127.0.0.1', 6379)
         serpent = require "serpent"
      encode_json = require("dkjson")
    https = require("ssl.https")
   http = require("socket.http")
+  U_RL = require('socket.url')
        ltn12 = require("ltn12")
    ---MULTY, PRE -- 
    CreateFile = function(data, file, uglify)
 file = io.open(file, "w+")
 local serialized
 if not uglify then
- serialized = serpent.block(data, {comment = false,name = "_configEnv"})
+ serialized = serpent.block(data, {comment = false,name = "_"})
 else
  serialized = serpent.dump(data)
 end
@@ -21,12 +21,14 @@ file:write(serialized)
 file:close()
 end
 configEnv = {}
-configEnv.data = {
+DB = {}
+DB.data = {
+
   plist = {
-    "test",
-    "P-l"
- 
+    "Core"
   },
+  other = {},
+  for_all = {}
 }   
 getMainMessage=function (...)
  
@@ -78,11 +80,12 @@ end
 
 end
 
-SelfVersion = '\n*Version* _:_`|BETA => 2.1|`'
+SelfVersion = '\n*Version* _:_`|BETA => 2.1.2|`'
 dofile_ = function(filename)
 if io.open("./U-T/"..filename..'.lua' or '','r') ==nil then
- text =  'No file exists on this path !\n==> CRCO PROJET <=='
- print(text)
+
+ CreateFile(DB , './U-T/DB.lua')
+
  CreateFile(configEnv , "./U-T/"..filename..'.lua')
  print ('Config DEFAULT created !')
 end
@@ -91,6 +94,7 @@ return __configEnv
 end
 
 config = dofile_( "config" )
+_EnvDB = dofile ("./U-T/DB.lua")
 function vardump(PRE)
 print(serpent.block(PRE, {comment=false}))
 end
@@ -118,6 +122,9 @@ return val
 end
 
 threads = {}
+
+
+  
   getSixe = function(b)
     local l = "B"
     if b > 1024 then
@@ -134,22 +141,8 @@ threads = {}
         end
         return string.format("%7.2f%2s",b,l)
     end
-  MainGetMessage =  function (arg,co)
-      if co.messages then
-      for k ,v in pairs(co.messages) do
-        if v.sender_user_id then
-       tdbot.deleteChatMessagesFromUser(v.chat_id,v.sender_user_id,nil,nil)
-      end
-    
-    end
-      if co.messages and co.messages[1] and co.messages[1].chat_id and co.messages[1].id then
-       tdbot.getChatHistory(co.messages[1].chat_id, co.messages[1].id,0 , 100, MainGetMessage, nil)
-       end
-    
-       
-       end
-      
-      end
+  
+  
 function getTableSize(t)
   local count = 0
   for _, __ in pairs(t) do
@@ -209,7 +202,7 @@ return true
 end
 
  function check_save(y,x)
-for k,v in pairs(config[data][y]) do
+for k,v in pairs(_EnvDB[data][y]) do
  if x == k then
    return k
  end
@@ -221,71 +214,72 @@ Get = function(value, main
 )
 Val_ = nil
 if main then
-if  config.data[value] and  config.data[value][main] then
-       Val_ =   config.data[value][main]
+if  _EnvDB.data[value] and  _EnvDB.data[value][main] then
+       Val_ =   _EnvDB.data[value][main]
        end
    else
-if  config.data[value] then
-Val_ =  config.data[value]
+if  _EnvDB.data[value] then
+Val_ =  _EnvDB.data[value]
    end
    end
    return Val_
 end 
 save = function(val,name,tas)
   if tas then  
-    if not config.data[val] then
-      config.data[val] = {}
+    if not _EnvDB.data[val] then
+      _EnvDB.data[val] = {}
     end
-  config.data[val][name] = tas
+    _EnvDB.data[val][name] = tas
 else
-  config.data[val]  = name
+  _EnvDB.data[val]  = name
 end
-  CreateFile(config , "./U-T/config.lua")
+  CreateFile(_EnvDB , "./U-T/DB.lua")
 end
 getUserStatus = function(status)
   if status then
   if status._ == 'userStatusOnline' then
-  PreStatus = '|Online|'
+  PreStatus = '〘Online〙'
   elseif status._ == 'userStatusLastMonth' then
-  PreStatus = '|Last Month|'
+  PreStatus = '〘Last Month〙'
   elseif status._ == 'userStatusLastWeek' then
-  PreStatus = '|Last Week|'
+  PreStatus = '〘Last Week〙'
   elseif status._ == 'userStatusRecently' then
-  PreStatus = '|Recently|'
+  PreStatus = '〘Recently〙'
   elseif status._ == 'userStatusOffline' then
-  PreStatus= '|Offline|'
+  PreStatus= '〘Offline〙'
   elseif status._ == 'userStatusEmpty' then
-  PreStatus = '|The user status was never changed|'
+  PreStatus = '〘The user status was never changed〙'
   end
 else
-    PreStatus = '|Error 404|'
+    PreStatus = '〘Error 404〙'
 end
   return PreStatus
   end
+
   getUserType = function(type)
     if type then
     if type._ == 'userTypeRegular' then
-    PreType = '|userType|'
+    PreType = '〘userType〙'
     elseif type._ == 'userTypeDeleted' then
-    PreType = '|userDeleted|'
+    PreType = '〘userDeleted〙'
     elseif type._ == 'userTypeBot' then
-    PreType = '|userBot|'
+    PreType = '〘userBot〙'
     elseif type._ == 'userTypeUnknown' then
-    PreType = '|Unknown|'
+    PreType = '〘Unknown〙'
     end
   else
-      PreType = '|Error 404|'
+      PreType = '〘Error 404〙'
   end
     return PreType
   end
   
 returndata = function(value)
 if  value == nil  then
-  return '|D|'
+  return '〘D〙'
 elseif value  and type(value) ~= 'string' then
-  return '|E|'
+  return '〘E〙'
 elseif value and type(value) == 'string' then
-return '|'..value..'|'
+return ''..value..''
 end
 end
 
@@ -296,11 +290,42 @@ function save_array_test(tab)
     table[#table+1]=k
   end
   end
-
+  getStatus = function(pri)
+    if pri.rules then
+      if (pri.rules[3] and pri.rules[3]._ == 'userPrivacySettingRuleAllowContacts' or pri.rules[2] and pri.rules[2]._ == 'userPrivacySettingRuleAllowContacts') then
+        if pri.rules[2]._ == 'userPrivacySettingRuleRestrictUsers' then
+          for key_, value in pairs(pri.rules[2].user_ids) do
+             numbernotallow = key_
+          end
+         end
+         if pri.rules[1]._ == 'userPrivacySettingRuleAllowUsers' then
+             for key, value in pairs(pri.rules[1].user_ids) do
+                 numberallow = key
+              end
+         end
+        CRCO = 'Only Contact\nAllow : '..(numberallow or 0 )..' || Not Allow : '..(numbernotallow or 0 )
+      elseif (pri.rules[2] and pri.rules[2]._ == 'userPrivacySettingRuleRestrictAll' or pri.rules[1] and pri.rules[1]._ == 'userPrivacySettingRuleRestrictAll') then
+        if pri.rules[1]._ == 'userPrivacySettingRuleAllowUsers' then
+          for key, value in pairs(pri.rules[1].user_ids) do
+              numberallow = key
+           end
+      end
+        CRCO = 'EveryNobody \nAllow : '..(numberallow or 0 )
+      elseif (pri.rules[2] and  pri.rules[2]._ =='userPrivacySettingRuleAllowAll' or pri.rules[1] and  pri.rules[1]._ =='userPrivacySettingRuleAllowAll')  then
+        if pri.rules[1]._ == 'userPrivacySettingRuleRestrictUsers' then
+          for key_, value in pairs(pri.rules[1].user_ids) do
+             numbernotallow = key_
+          end
+         end
+        CRCO  = 'EveryBody\nNot Allow : '..(numbernotallow or 0)
+      end
+      end
+      return CRCO
+      end
 
 CHECK = function(VAL,NAME)
-  if config.data[VAL] then
-  for k,v in pairs(config.data[VAL]) do
+  if _EnvDB.data[VAL] then
+  for k,v in pairs(_EnvDB.data[VAL]) do
  
       if NAME == v then
           return k
@@ -311,7 +336,7 @@ end
 end
 is_Saved = function(pth,name)
 
-    list = config.data[pth] or {}
+    list = _EnvDB.data[pth] or {}
  
   
          for v,value in pairs(list) do
@@ -334,21 +359,21 @@ is_Saved = function(pth,name)
     
 end
 sadd = function(val,name)
-  if not config.data[val] then
-    config.data[val] = {}
+  if not _EnvDB.data[val] then
+    _EnvDB.data[val] = {}
   end
   if is_Saved(val,name)  then
-  table.insert(config.data[val] ,name)
-  CreateFile(config , "./U-T/config.lua")
+  table.insert(_EnvDB.data[val] ,name)
+  CreateFile(_EnvDB , "./U-T/DB.lua")
   end
 end
 sremove = function(val,name)
 if CHECK(val,name) then
-  table.remove(config.data[val] ,CHECK(val,name))
+  table.remove(_EnvDB.data[val] ,CHECK(val,name))
 end
 end
 searchvl=function(y,x) 
-     for _R,v in pairs(config[data][y]) do 
+     for _R,v in pairs(_EnvDB[data][y]) do 
      if v == x then 
 return _R
   end 
@@ -357,11 +382,11 @@ return _R
 end 
 del = function  (value,name)
 if name then
-     config.data[value][name] = nil
+  _EnvDB.data[value][name] = nil
 else
-  config.data[value] =nil
+  _EnvDB.data[value] =nil
 end
-     CreateFile(config , "./U-T/config.lua")
+     CreateFile(_EnvDB , "./U-T/DB.lua")
 end
 is_sudo = function(user_id)
     local var = false
